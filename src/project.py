@@ -2,13 +2,11 @@ import pygame
 import random
 import sys
 
-# Screen and grid setup
+
 WIDTH, HEIGHT = 600, 400
 GRID_SIZE = 20
-GRID_WIDTH = WIDTH // GRID_SIZE
-GRID_HEIGHT = HEIGHT // GRID_SIZE
 
-# Colors
+
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (200, 0, 0)
@@ -31,10 +29,33 @@ def draw_score(screen, font, score):
     score_text = font.render(f"Score: {score}", True, WHITE)
     screen.blit(score_text, (10, 10))
 
-def main():
-    pygame.init()
+def show_game_over(screen, font, score):
+    screen.fill(BLACK)
+    msg1 = font.render("Game Over!", True, RED)
+    msg2 = font.render(f"Final Score: {score}", True, WHITE)
+    msg3 = font.render("Press R to Restart or Q to Quit", True, WHITE)
+    
+    screen.blit(msg1, (WIDTH//2 - msg1.get_width()//2, HEIGHT//2 - 60))
+    screen.blit(msg2, (WIDTH//2 - msg2.get_width()//2, HEIGHT//2 - 20))
+    screen.blit(msg3, (WIDTH//2 - msg3.get_width()//2, HEIGHT//2 + 20))
+    pygame.display.flip()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    waiting = False
+                elif event.key == pygame.K_q:
+                    pygame.quit()
+                    sys.exit()
+
+def run_game():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Smooth Snake Game")
+    pygame.display.set_caption("Snake Game")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 36)
 
@@ -43,8 +64,7 @@ def main():
     food = random_food()
     score = 0
 
-    # Timing for snake movement
-    snake_speed = 120  # milliseconds per move
+    snake_speed = 120
     last_move_time = pygame.time.get_ticks()
 
     running = True
@@ -52,12 +72,11 @@ def main():
         current_time = pygame.time.get_ticks()
         screen.fill(BLACK)
 
-        # --- Event handling ---
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                pygame.quit()
+                sys.exit()
 
-        # --- Movement input ---
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP] and direction != (0, GRID_SIZE):
             direction = (0, -GRID_SIZE)
@@ -68,7 +87,6 @@ def main():
         elif keys[pygame.K_RIGHT] and direction != (-GRID_SIZE, 0):
             direction = (GRID_SIZE, 0)
 
-        # --- Update snake only every few ms ---
         if current_time - last_move_time > snake_speed:
             last_move_time = current_time
             new_head = (snake[0][0] + direction[0], snake[0][1] + direction[1])
@@ -80,25 +98,24 @@ def main():
             else:
                 snake.pop()
 
-            # --- Collision detection ---
             if (
                 new_head in snake[1:] or
                 new_head[0] < 0 or new_head[0] >= WIDTH or
                 new_head[1] < 0 or new_head[1] >= HEIGHT
             ):
-                print("Game Over! Final Score:", score)
-                pygame.quit()
-                sys.exit()
+                show_game_over(screen, font, score)
+                running = False
 
-        # --- Drawing ---
         draw_food(screen, food)
         draw_snake(screen, snake)
         draw_score(screen, font, score)
         pygame.display.flip()
+        clock.tick(60)
 
-        clock.tick(60)  # high FPS for smooth animation
-
-    pygame.quit()
+def main():
+    pygame.init()
+    while True:
+        run_game()
 
 if __name__ == "__main__":
     main()
