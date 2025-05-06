@@ -2,11 +2,11 @@ import pygame
 import random
 import sys
 
-# Screen and grid setup
+
 WIDTH, HEIGHT = 600, 400
 GRID_SIZE = 20
 
-# Colors
+
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (200, 0, 0)
@@ -16,8 +16,9 @@ def draw_snake(screen, snake):
     for segment in snake:
         pygame.draw.rect(screen, GREEN, pygame.Rect(segment[0], segment[1], GRID_SIZE, GRID_SIZE))
 
-def draw_food(screen, food):
-    pygame.draw.rect(screen, RED, pygame.Rect(food[0], food[1], GRID_SIZE, GRID_SIZE))
+def draw_food(screen, food_list):
+    for food in food_list:
+        pygame.draw.rect(screen, RED, pygame.Rect(food[0], food[1], GRID_SIZE, GRID_SIZE))
 
 def random_food():
     return (
@@ -48,7 +49,7 @@ def show_game_over(screen, font, score):
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    waiting = False  # restart
+                    waiting = False
                 elif event.key == pygame.K_q:
                     pygame.quit()
                     sys.exit()
@@ -61,10 +62,10 @@ def run_game():
 
     snake = [(100, 100), (80, 100), (60, 100)]
     direction = (GRID_SIZE, 0)
-    food = random_food()
+    food_list = [random_food() for _ in range(3)]
     score = 0
 
-    snake_speed = 120  # milliseconds per move
+    snake_speed = 120 
     last_move_time = pygame.time.get_ticks()
 
     running = True
@@ -92,11 +93,14 @@ def run_game():
             new_head = (snake[0][0] + direction[0], snake[0][1] + direction[1])
             snake.insert(0, new_head)
 
-            if new_head == food:
-                food = random_food()
-                score += 1
+            for i, food in enumerate(food_list):
+                if new_head == food:
+                    food_list[i] = random_food()
+                    score += 1
+                    break
             else:
                 snake.pop()
+
 
             if (
                 new_head in snake[1:] or
@@ -106,7 +110,7 @@ def run_game():
                 show_game_over(screen, font, score)
                 running = False
 
-        draw_food(screen, food)
+        draw_food(screen, food_list)
         draw_snake(screen, snake)
         draw_score(screen, font, score)
         pygame.display.flip()
@@ -116,7 +120,7 @@ def main():
     pygame.init()
     pygame.mixer.init()
     pygame.mixer.music.load("game_music.mp3")
-    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.set_volume(0.1)
     pygame.mixer.music.play(-1)
 
     while True:
