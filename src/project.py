@@ -2,11 +2,11 @@ import pygame
 import random
 import sys
 
-
+# Screen and grid setup
 WIDTH, HEIGHT = 600, 400
 GRID_SIZE = 20
 
-
+# Colors
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (200, 0, 0)
@@ -48,14 +48,14 @@ def show_game_over(screen, font, score):
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    waiting = False
+                    waiting = False  # restart
                 elif event.key == pygame.K_q:
                     pygame.quit()
                     sys.exit()
 
 def run_game():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Snake Game")
+    pygame.display.set_caption("Smooth Snake Game")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont(None, 36)
 
@@ -64,7 +64,7 @@ def run_game():
     food = random_food()
     score = 0
 
-    snake_speed = 120
+    snake_speed = 120  # milliseconds per move
     last_move_time = pygame.time.get_ticks()
 
     running = True
@@ -114,8 +114,14 @@ def run_game():
 
 def main():
     pygame.init()
+    pygame.mixer.init()
+    pygame.mixer.music.load("game_music.mp3")
+    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.play(-1)
+
     while True:
         run_game()
+
 
 if __name__ == "__main__":
     main()
