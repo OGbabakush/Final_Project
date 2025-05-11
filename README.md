@@ -1,4 +1,4 @@
-# Snake Game
+# Smooth Snake Game
 
 ## Demo
 Demo Video: <URL>
